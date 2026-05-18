@@ -14,6 +14,7 @@ let LICENSE =
 localStorage.getItem("THEO_LICENSE");
 
 if(!LICENSE){
+}
 
 // =========================
 // CUSTOM LICENSE UI
