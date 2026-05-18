@@ -86,7 +86,7 @@ margin-bottom:20px;
 #theo-license-input{
 width:100%;
 height:42px;
-border:none;
+border:1px solid #00ff99;
 border-radius:10px;
 padding-left:12px;
 box-sizing:border-box;
@@ -94,6 +94,8 @@ background:#111;
 color:#00ff99;
 font-size:14px;
 outline:none;
+margin-bottom:12px;
+display:block;
 }
 
 #theo-login-btn{
