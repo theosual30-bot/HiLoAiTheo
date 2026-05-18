@@ -13,16 +13,177 @@ localStorage.removeItem("THEO_BAD_LICENSE");
 let LICENSE =
 localStorage.getItem("THEO_LICENSE");
 
-// kalau belum ada baru minta
-if(!LICENSE){
+// =========================
+// CUSTOM LICENSE UI
+// =========================
 
-LICENSE = prompt("ENTER LICENSE KEY");
+const loginBg =
+document.createElement("div");
 
-if(!LICENSE){
-alert("LICENSE REQUIRED");
-throw new Error("NO LICENSE");
+loginBg.id = "theo-login-bg";
+
+loginBg.innerHTML = `
+<div id="theo-login-box">
+
+<div id="theo-title">
+THEO AI
+</div>
+
+<div id="theo-sub">
+SECURE ACCESS
+</div>
+
+<input
+id="theo-license-input"
+placeholder="ENTER LICENSE"
+/>
+
+<button id="theo-login-btn">
+LOGIN
+</button>
+
+<div id="theo-login-status">
+READY
+</div>
+
+</div>
+`;
+
+document.body.appendChild(loginBg);
+
+// STYLE
+const loginStyle =
+document.createElement("style");
+
+loginStyle.innerHTML = `
+
+#theo-login-bg{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.75);
+backdrop-filter:blur(8px);
+z-index:99999999;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+#theo-login-box{
+width:320px;
+background:rgba(20,20,20,0.95);
+border:1px solid #00ff99;
+border-radius:18px;
+padding:25px;
+box-shadow:0 0 25px #00ff99;
+font-family:Arial;
+animation:theoPop 0.35s ease;
+}
+
+#theo-title{
+font-size:28px;
+font-weight:bold;
+color:#00ff99;
+text-align:center;
+}
+
+#theo-sub{
+margin-top:5px;
+font-size:13px;
+color:#aaa;
+text-align:center;
+margin-bottom:20px;
+}
+
+#theo-license-input{
+width:100%;
+height:42px;
+border:none;
+border-radius:10px;
+padding-left:12px;
+box-sizing:border-box;
+background:#111;
+color:#00ff99;
+font-size:14px;
+outline:none;
+}
+
+#theo-login-btn{
+width:100%;
+height:42px;
+margin-top:12px;
+border:none;
+border-radius:10px;
+background:#00ff99;
+color:#000;
+font-weight:bold;
+font-size:15px;
+cursor:pointer;
+}
+
+#theo-login-status{
+margin-top:14px;
+text-align:center;
+font-size:13px;
+color:#00ff99;
+}
+
+@keyframes theoPop{
+from{
+transform:scale(0.7);
+opacity:0;
+}
+to{
+transform:scale(1);
+opacity:1;
 }
 }
+
+`;
+
+document.head.appendChild(loginStyle);
+
+// LOGIN BUTTON
+document.getElementById(
+"theo-login-btn"
+).onclick = ()=>{
+
+LICENSE =
+document.getElementById(
+"theo-license-input"
+).value;
+
+if(!LICENSE){
+
+document.getElementById(
+"theo-login-status"
+).innerHTML =
+"ENTER LICENSE";
+
+return;
+}
+
+document.getElementById(
+"theo-login-status"
+).innerHTML =
+"VERIFYING...";
+
+// SAVE
+localStorage.setItem(
+"THEO_LICENSE",
+LICENSE
+);
+
+// RELOAD
+location.reload();
+
+};
+
+throw new Error(
+"WAITING LOGIN"
+);
 
 // FETCH DATABASE
 fetch(
