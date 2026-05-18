@@ -25,19 +25,30 @@ document.createElement("div");
 loginBg.id = "theo-login-bg";
 
 loginBg.innerHTML = `
+<div id="theo-login-box">
 
-<div id="theo-login-box">  <div id="theo-title">      
-THEO AI      
-</div>  <div id="theo-sub">      
-SECURE ACCESS      
-</div>  <input      
-id="theo-license-input"      
-placeholder="ENTER LICENSE"      
-/>  <button id="theo-login-btn">      
-LOGIN      
-</button>  <div id="theo-login-status">      
-READY      
-</div>  </div>      
+<div id="theo-title">
+THEO AI
+</div>
+
+<div id="theo-sub">
+SECURE ACCESS
+</div>
+
+<input
+id="theo-license-input"
+placeholder="ENTER LICENSE"
+/>
+
+<button id="theo-login-btn">
+LOGIN
+</button>
+
+<div id="theo-login-status">
+READY
+</div>
+
+</div>
 `;
 document.body.appendChild(loginBg);  // STYLE  
 const loginStyle =  
