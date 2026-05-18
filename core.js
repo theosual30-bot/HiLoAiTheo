@@ -606,6 +606,151 @@ return 0;
 
 zigzag_engine() {
 
+// =========================
+// ENGINE
+// =========================
+
+class HiLoAnalyzerTheo {
+
+constructor() {
+
+this.cards = [];
+this.moves = [];
+
+this.loss_streak = 0;
+
+this.mode = "SAFE";
+
+this.chaos_score = 0;
+
+this.w_prob = 1.0;
+this.w_trend = 0.8;
+this.w_gap = 0.5;
+this.w_zone = 0.7;
+this.w_rev = 0.7;
+this.w_zig = 0.5;
+this.w_mult = 0.35;
+this.w_heat = 0.5;
+}
+
+cv(card) {
+
+const rank = {
+"A": 1,
+"2": 2,
+"3": 3,
+"4": 4,
+"5": 5,
+"6": 6,
+"7": 7,
+"8": 8,
+"9": 9,
+"10": 10,
+"J": 11,
+"Q": 12,
+"K": 13
+};
+
+return rank[String(card).toUpperCase()];
+}
+
+reset_run() {
+
+this.cards = [];
+this.moves = [];
+}
+
+add_card(card) {
+
+let v = this.cv(card);
+
+if (!v) return;
+
+if (this.cards.length > 0) {
+
+let diff = v - this.cards[this.cards.length - 1];
+
+this.moves.push(diff);
+
+if (this.moves.length > 15) {
+this.moves.shift();
+}
+}
+
+this.cards.push(v);
+
+if (this.cards.length > 20) {
+this.cards.shift();
+}
+}
+
+prob_engine(current) {
+
+let c = this.cv(current);
+
+return {
+high: 13 - c,
+low: c - 1
+};
+}
+
+trend_engine() {
+
+if (this.cards.length < 3) {
+return {
+up: 0,
+down: 0
+};
+}
+
+let up = 0;
+let down = 0;
+
+for (let i = 1; i < this.cards.length; i++) {
+
+if (this.cards[i] > this.cards[i - 1]) {
+up++;
+}
+
+else if (this.cards[i] < this.cards[i - 1]) {
+down++;
+}
+}
+
+return {
+up,
+down
+};
+}
+
+gap_engine() {
+
+if (this.moves.length === 0) return 0;
+
+let total = this.moves.reduce((a, b) => a + Math.abs(b), 0);
+
+return total / this.moves.length;
+}
+
+reversal_engine() {
+
+if (this.cards.length < 4) return 0;
+
+let c = this.cards.slice(-4);
+
+if (c[0] < c[1] && c[1] < c[2] && c[2] < c[3]) {
+return 1;
+}
+
+if (c[0] > c[1] && c[1] > c[2] && c[2] > c[3]) {
+return 1;
+}
+
+return 0;
+}
+
+zigzag_engine() {
+
 if (this.cards.length < 4) return 0;
 
 let changes = [];
@@ -648,13 +793,157 @@ high++;
 return { low, high };
 }
 
+// =========================
+// STREAK ENGINE
+// =========================
+
+streak_engine(){
+
+if(this.cards.length < 2){
+
+return {
+count:0,
+dir:"NONE"
+};
+}
+
+let dir = null;
+let count = 1;
+
+for(let i=this.cards.length-1;i>0;i--){
+
+let current = this.cards[i];
+let prev = this.cards[i-1];
+
+let d =
+current > prev
+? "UP"
+: current < prev
+? "DOWN"
+: "FLAT";
+
+if(!dir){
+dir = d;
+}
+
+if(d === dir){
+count++;
+}else{
+break;
+}
+}
+
+return {
+count,
+dir
+};
+}
+
+// =========================
+// CHAOS ENGINE
+// =========================
+
+chaos_engine(){
+
+let chaos = 0;
+
+let zig =
+this.zigzag_engine();
+
+chaos += zig * 4;
+
+let trend =
+this.trend_engine();
+
+let balance =
+Math.abs(
+trend.up - trend.down
+);
+
+if(balance <= 1){
+chaos += 20;
+}
+
+let gap =
+this.gap_engine();
+
+if(gap >= 5){
+chaos += 25;
+}
+
+let streak =
+this.streak_engine();
+
+if(streak.count <= 2){
+chaos += 15;
+}
+
+return Math.min(100, chaos);
+}
+
+// =========================
+// STATE ENGINE
+// =========================
+
+state_engine(chaos, rev, trend){
+
+if(chaos >= 70){
+return "CHAOS";
+}
+
+if(rev >= 1){
+return "REVERSAL";
+}
+
+if(
+Math.abs(
+trend.up - trend.down
+) >= 4
+){
+return "TREND";
+}
+
+return "SAFE";
+}
+
+// =========================
+// QUALITY ENGINE
+// =========================
+
+quality_engine(conf, chaos){
+
+let q =
+conf - (chaos * 0.4);
+
+if(q >= 80){
+return "A+";
+}
+
+if(q >= 65){
+return "A";
+}
+
+if(q >= 50){
+return "B";
+}
+
+if(q >= 35){
+return "C";
+}
+
+return "DANGER";
+}
+
 analyze(current, mult_high, mult_low) {
 
 let { high: ph, low: pl } =
 this.prob_engine(current);
 
-let { up, down } =
+let trend =
 this.trend_engine();
+
+let { up, down } =
+trend;
 
 let gap =
 this.gap_engine();
@@ -665,6 +954,19 @@ this.reversal_engine();
 let zig =
 this.zigzag_engine();
 
+let chaos =
+this.chaos_engine();
+
+let streak =
+this.streak_engine();
+
+let state =
+this.state_engine(
+chaos,
+rev,
+trend
+);
+
 let { low, high } =
 this.heat_engine();
 
@@ -673,6 +975,10 @@ ph * mult_high;
 
 let ev_l =
 pl * mult_low;
+
+// =========================
+// SCORE
+// =========================
 
 let score_h =
 (
@@ -701,6 +1007,56 @@ rev * this.w_rev
 let diff =
 Math.abs(score_h - score_l);
 
+// =========================
+// HARD CHAOS SKIP
+// =========================
+
+if(chaos >= 75){
+
+return {
+
+action:"SKIP",
+
+conf:15,
+
+mode:"HARD SKIP",
+
+state,
+
+quality:"DANGER",
+
+chaos,
+
+streak_dir:
+streak.dir,
+
+streak_count:
+streak.count,
+
+high_score:
+score_h.toFixed(2),
+
+low_score:
+score_l.toFixed(2),
+
+trend_up: up,
+
+trend_down: down,
+
+zig,
+
+rev,
+
+gap:
+gap.toFixed(2)
+
+};
+}
+
+// =========================
+// ACTION
+// =========================
+
 let action =
 diff < 1
 ? "SKIP"
@@ -708,27 +1064,93 @@ diff < 1
 ? "HIGH"
 : "LOW";
 
+// =========================
+// CONFIDENCE
+// =========================
+
 let conf =
 Math.min(
 99,
-Math.round(diff * 10)
+Math.round(
+(diff * 10) -
+(chaos * 0.35)
+)
 );
 
+if(conf < 1){
+conf = 1;
+}
+
+// =========================
+// ENTRY MODE
+// =========================
+
+let mode = "SAFE ENTRY";
+
+if(
+conf >= 85 &&
+chaos <= 30
+){
+mode =
+"AGGRESSIVE ENTRY";
+}
+
+if(
+chaos >= 50
+){
+mode =
+"SOFT SKIP";
+}
+
+// =========================
+// RETURN
+// =========================
+
 return {
+
 action,
+
 conf,
-mode: this.mode,
-high_score: score_h.toFixed(2),
-low_score: score_l.toFixed(2),
+
+mode,
+
+state,
+
+quality:
+this.quality_engine(
+conf,
+chaos
+),
+
+chaos,
+
+streak_dir:
+streak.dir,
+
+streak_count:
+streak.count,
+
+high_score:
+score_h.toFixed(2),
+
+low_score:
+score_l.toFixed(2),
+
 trend_up: up,
+
 trend_down: down,
+
 zig,
+
 rev,
-gap: gap.toFixed(2)
+
+gap:
+gap.toFixed(2)
+
 };
 }
 }
-
+  
 // =========================
 // START ENGINE
 // =========================
