@@ -25,39 +25,23 @@ document.createElement("div");
 loginBg.id = "theo-login-bg";
 
 loginBg.innerHTML = `
-<div id="theo-login-box">
 
-<div id="theo-title">
-THEO AI
-</div>
-
-<div id="theo-sub">
-SECURE ACCESS
-</div>
-
-<input
-id="theo-license-input"
-placeholder="ENTER LICENSE"
-/>
-
-<button id="theo-login-btn">
-LOGIN
-</button>
-
-<div id="theo-login-status">
-READY
-</div>
-
-</div>
+<div id="theo-login-box">  <div id="theo-title">      
+THEO AI      
+</div>  <div id="theo-sub">      
+SECURE ACCESS      
+</div>  <input      
+id="theo-license-input"      
+placeholder="ENTER LICENSE"      
+/>  <button id="theo-login-btn">      
+LOGIN      
+</button>  <div id="theo-login-status">      
+READY      
+</div>  </div>      
 `;
-
-document.body.appendChild(loginBg);
-
-// STYLE
-const loginStyle =
-document.createElement("style");
-
-loginStyle.innerHTML = `
+document.body.appendChild(loginBg);  // STYLE  
+const loginStyle =  
+document.createElement("style");  loginStyle.innerHTML = `
 
 #theo-login-bg{
 position:fixed;
@@ -312,39 +296,24 @@ const panel = document.createElement("div");
 panel.id = "theo-panel";
 
 panel.innerHTML = `
-<div id="theo-drag">
-THEO AI
-</div>
 
-<input id="cardInput" placeholder="Card">
-
-<input id="multHigh" value="12">
-
-<input id="multLow" value="1.2">
-
-<button id="addCardBtn">
-ADD CARD
-</button>
-
-<button id="analyzeBtn">
-ANALYZE
-</button>
-
-<button id="resetBtn">
-RESET
-</button>
-
-<div id="theo-result">
-READY
-</div>
+<div id="theo-drag">      
+THEO AI      
+</div>  <input id="cardInput" placeholder="Card">  <input id="multHigh" value="12">  <input id="multLow" value="1.2">  <button id="addCardBtn">      
+ADD CARD      
+</button>  <button id="analyzeBtn">      
+ANALYZE      
+</button>  <button id="resetBtn">      
+RESET      
+</button>  <div id="theo-result">      
+READY      
+</div>      
 `;
-
 document.body.appendChild(panel);
 
-// =========================
-// DRAG FIX MOBILE
-// =========================
-
+// =========================  
+// DRAG FIX MOBILE  
+// ========================= 
 (function(){
 
 const drag =
@@ -453,7 +422,7 @@ initialY;
 xOffset=currentX;
 yOffset=currentY;
 
-panel.style.transform=
+panel.style.transform =
 `translate(${currentX}px, ${currentY}px)`;
 }
 
@@ -463,148 +432,6 @@ active=false;
 }
 
 })();
-
-// =========================
-// ENGINE
-// =========================
-
-class HiLoAnalyzerTheo {
-
-constructor() {
-
-this.cards = [];
-this.moves = [];
-
-this.loss_streak = 0;
-this.mode = "PROB";
-
-this.w_prob = 1.0;
-this.w_trend = 0.8;
-this.w_gap = 0.5;
-this.w_zone = 0.7;
-this.w_rev = 0.7;
-this.w_zig = 0.5;
-this.w_mult = 0.35;
-this.w_heat = 0.5;
-}
-
-cv(card) {
-
-const rank = {
-"A": 1,
-"2": 2,
-"3": 3,
-"4": 4,
-"5": 5,
-"6": 6,
-"7": 7,
-"8": 8,
-"9": 9,
-"10": 10,
-"J": 11,
-"Q": 12,
-"K": 13
-};
-
-return rank[String(card).toUpperCase()];
-}
-
-reset_run() {
-
-this.cards = [];
-this.moves = [];
-}
-
-add_card(card) {
-
-let v = this.cv(card);
-
-if (!v) return;
-
-if (this.cards.length > 0) {
-
-let diff = v - this.cards[this.cards.length - 1];
-
-this.moves.push(diff);
-
-if (this.moves.length > 15) {
-this.moves.shift();
-}
-}
-
-this.cards.push(v);
-
-if (this.cards.length > 20) {
-this.cards.shift();
-}
-}
-
-prob_engine(current) {
-
-let c = this.cv(current);
-
-return {
-high: 13 - c,
-low: c - 1
-};
-}
-
-trend_engine() {
-
-if (this.cards.length < 3) {
-return {
-up: 0,
-down: 0
-};
-}
-
-let up = 0;
-let down = 0;
-
-for (let i = 1; i < this.cards.length; i++) {
-
-if (this.cards[i] > this.cards[i - 1]) {
-up++;
-}
-
-else if (this.cards[i] < this.cards[i - 1]) {
-down++;
-}
-}
-
-return {
-up,
-down
-};
-}
-
-gap_engine() {
-
-if (this.moves.length === 0) return 0;
-
-let total = this.moves.reduce((a, b) => a + Math.abs(b), 0);
-
-return total / this.moves.length;
-}
-
-reversal_engine() {
-
-if (this.cards.length < 4) return 0;
-
-let c = this.cards.slice(-4);
-
-if (c[0] < c[1] && c[1] < c[2] && c[2] < c[3]) {
-return 1;
-}
-
-if (c[0] > c[1] && c[1] > c[2] && c[2] > c[3]) {
-return 1;
-}
-
-return 0;
-}
-
-zigzag_engine() {
 
 // =========================
 // ENGINE
@@ -633,26 +460,34 @@ this.w_mult = 0.35;
 this.w_heat = 0.5;
 }
 
+// =========================
+// CARD VALUE
+// =========================
+
 cv(card) {
 
 const rank = {
-"A": 1,
-"2": 2,
-"3": 3,
-"4": 4,
-"5": 5,
-"6": 6,
-"7": 7,
-"8": 8,
-"9": 9,
-"10": 10,
-"J": 11,
-"Q": 12,
-"K": 13
+"A":1,
+"2":2,
+"3":3,
+"4":4,
+"5":5,
+"6":6,
+"7":7,
+"8":8,
+"9":9,
+"10":10,
+"J":11,
+"Q":12,
+"K":13
 };
 
 return rank[String(card).toUpperCase()];
 }
+
+// =========================
+// RESET
+// =========================
 
 reset_run() {
 
@@ -660,59 +495,73 @@ this.cards = [];
 this.moves = [];
 }
 
+// =========================
+// ADD CARD
+// =========================
+
 add_card(card) {
 
 let v = this.cv(card);
 
-if (!v) return;
+if(!v) return;
 
-if (this.cards.length > 0) {
+if(this.cards.length > 0){
 
-let diff = v - this.cards[this.cards.length - 1];
+let diff =
+v - this.cards[this.cards.length - 1];
 
 this.moves.push(diff);
 
-if (this.moves.length > 15) {
+if(this.moves.length > 15){
 this.moves.shift();
 }
 }
 
 this.cards.push(v);
 
-if (this.cards.length > 20) {
+if(this.cards.length > 20){
 this.cards.shift();
 }
 }
 
-prob_engine(current) {
+// =========================
+// PROB ENGINE
+// =========================
+
+prob_engine(current){
 
 let c = this.cv(current);
 
 return {
-high: 13 - c,
-low: c - 1
+high:13-c,
+low:c-1
 };
 }
 
-trend_engine() {
+// =========================
+// TREND ENGINE
+// =========================
 
-if (this.cards.length < 3) {
+trend_engine(){
+
+if(this.cards.length < 3){
+
 return {
-up: 0,
-down: 0
+up:0,
+down:0
 };
 }
 
 let up = 0;
 let down = 0;
 
-for (let i = 1; i < this.cards.length; i++) {
+for(let i=1;i<this.cards.length;i++){
 
-if (this.cards[i] > this.cards[i - 1]) {
+if(this.cards[i] > this.cards[i-1]){
 up++;
 }
 
-else if (this.cards[i] < this.cards[i - 1]) {
+else if(this.cards[i] < this.cards[i-1]){
 down++;
 }
 }
@@ -723,42 +572,73 @@ down
 };
 }
 
-gap_engine() {
+// =========================
+// GAP ENGINE
+// =========================
 
-if (this.moves.length === 0) return 0;
+gap_engine(){
 
-let total = this.moves.reduce((a, b) => a + Math.abs(b), 0);
+if(this.moves.length===0){
+return 0;
+}
+
+let total =
+this.moves.reduce(
+(a,b)=>a+Math.abs(b),
+0
+);
 
 return total / this.moves.length;
 }
 
-reversal_engine() {
+// =========================
+// REVERSAL ENGINE
+// =========================
 
-if (this.cards.length < 4) return 0;
+reversal_engine(){
 
-let c = this.cards.slice(-4);
+if(this.cards.length < 4){
+return 0;
+}
 
-if (c[0] < c[1] && c[1] < c[2] && c[2] < c[3]) {
+let c =
+this.cards.slice(-4);
+
+if(
+c[0] < c[1] &&
+c[1] < c[2] &&
+c[2] < c[3]
+){
 return 1;
 }
 
-if (c[0] > c[1] && c[1] > c[2] && c[2] > c[3]) {
+if(
+c[0] > c[1] &&
+c[1] > c[2] &&
+c[2] > c[3]
+){
 return 1;
 }
 
 return 0;
 }
 
-zigzag_engine() {
+// =========================
+// ZIGZAG ENGINE
+// =========================
 
-if (this.cards.length < 4) return 0;
+zigzag_engine(){
+
+if(this.cards.length < 4){
+return 0;
+}
 
 let changes = [];
 
-for (let i = 1; i < this.cards.length; i++) {
+for(let i=1;i<this.cards.length;i++){
 
 changes.push(
-this.cards[i] > this.cards[i - 1]
+this.cards[i] > this.cards[i-1]
 ? 1
 : -1
 );
@@ -766,9 +646,9 @@ this.cards[i] > this.cards[i - 1]
 
 let zig = 0;
 
-for (let i = 1; i < changes.length; i++) {
+for(let i=1;i<changes.length;i++){
 
-if (changes[i] !== changes[i - 1]) {
+if(changes[i] !== changes[i-1]){
 zig++;
 }
 }
@@ -776,21 +656,28 @@ zig++;
 return zig;
 }
 
-heat_engine() {
+// =========================
+// HEAT ENGINE
+// =========================
+
+heat_engine(){
 
 let low = 0;
 let high = 0;
 
-this.cards.forEach(x => {
+this.cards.forEach(x=>{
 
-if (x <= 6) {
+if(x <= 6){
 low++;
-} else {
+}else{
 high++;
 }
 });
 
-return { low, high };
+return {
+low,
+high
+};
 }
 
 // =========================
@@ -810,10 +697,17 @@ dir:"NONE"
 let dir = null;
 let count = 1;
 
-for(let i=this.cards.length-1;i>0;i--){
+for(
+let i=this.cards.length-1;
+i>0;
+i--
+){
 
-let current = this.cards[i];
-let prev = this.cards[i-1];
+let current =
+this.cards[i];
+
+let prev =
+this.cards[i-1];
 
 let d =
 current > prev
@@ -885,7 +779,11 @@ return Math.min(100, chaos);
 // STATE ENGINE
 // =========================
 
-state_engine(chaos, rev, trend){
+state_engine(
+chaos,
+rev,
+trend
+){
 
 if(chaos >= 70){
 return "CHAOS";
@@ -910,7 +808,10 @@ return "SAFE";
 // QUALITY ENGINE
 // =========================
 
-quality_engine(conf, chaos){
+quality_engine(
+conf,
+chaos
+){
 
 let q =
 conf - (chaos * 0.4);
@@ -934,15 +835,29 @@ return "C";
 return "DANGER";
 }
 
-analyze(current, mult_high, mult_low) {
+// =========================
+// MAIN ANALYZE
+// =========================
 
-let { high: ph, low: pl } =
+analyze(
+current,
+mult_high,
+mult_low
+){
+
+let {
+high:ph,
+low:pl
+} =
 this.prob_engine(current);
 
 let trend =
 this.trend_engine();
 
-let { up, down } =
+let {
+up,
+down
+} =
 trend;
 
 let gap =
@@ -967,7 +882,10 @@ rev,
 trend
 );
 
-let { low, high } =
+let {
+low,
+high
+} =
 this.heat_engine();
 
 let ev_h =
@@ -1039,9 +957,9 @@ score_h.toFixed(2),
 low_score:
 score_l.toFixed(2),
 
-trend_up: up,
+trend_up:up,
 
-trend_down: down,
+trend_down:down,
 
 zig,
 
@@ -1085,7 +1003,8 @@ conf = 1;
 // ENTRY MODE
 // =========================
 
-let mode = "SAFE ENTRY";
+let mode =
+"SAFE ENTRY";
 
 if(
 conf >= 85 &&
@@ -1136,9 +1055,9 @@ score_h.toFixed(2),
 low_score:
 score_l.toFixed(2),
 
-trend_up: up,
+trend_up:up,
 
-trend_down: down,
+trend_down:down,
 
 zig,
 
@@ -1150,7 +1069,7 @@ gap.toFixed(2)
 };
 }
 }
-  
+
 // =========================
 // START ENGINE
 // =========================
@@ -1199,6 +1118,10 @@ document.getElementById("theo-result")
 ACTION : ${r.action}<br>
 CONF : ${r.conf}%<br>
 MODE : ${r.mode}<br>
+STATE : ${r.state}<br>
+QUALITY : ${r.quality}<br>
+CHAOS : ${r.chaos}%<br>
+STREAK : ${r.streak_dir} ${r.streak_count}<br>
 HIGH SCORE : ${r.high_score}<br>
 LOW SCORE : ${r.low_score}<br>
 TREND UP : ${r.trend_up}<br>
