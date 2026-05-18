@@ -13,12 +13,11 @@ localStorage.removeItem("THEO_BAD_LICENSE");
 let LICENSE =
 localStorage.getItem("THEO_LICENSE");
 
-if(!LICENSE){
-}
-  
 // =========================
 // CUSTOM LICENSE UI
 // =========================
+
+if(!LICENSE){
 
 const loginBg =
 document.createElement("div");
