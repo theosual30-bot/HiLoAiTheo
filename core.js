@@ -15,10 +15,6 @@ localStorage.getItem("THEO_LICENSE");
 
 if(!LICENSE){
 
-CUSTOM LOGIN UI
-
-}
-
 // =========================
 // CUSTOM LICENSE UI
 // =========================
@@ -190,6 +186,8 @@ location.reload();
 throw new Error(
 "WAITING LOGIN"
 );
+
+}
 
 // FETCH DATABASE
 fetch(
