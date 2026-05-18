@@ -1,3 +1,12 @@
+// ==UserScript==
+// @name         Theo AI Secure
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @match        https://winhash.io/*
+// @grant        GM_xmlhttpRequest
+// @connect      raw.githubusercontent.com
+// ==/UserScript==
+
 (async function(){
 
 const url =
